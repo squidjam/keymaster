@@ -123,6 +123,12 @@
       font-size: 15px;
       line-height: 1.65;
     }
+    .fork-credit {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .fork-credit a { color: var(--green); text-underline-offset: 3px; }
 
     .demo-section { padding-bottom: 58px; }
     .section-heading {
@@ -507,7 +513,7 @@
       <nav class="header-nav" aria-label="Main navigation">
         <a href="#demo">Demo</a>
         <a href="#how-it-works">Element</a>
-        <a href="https://github.com/madrobby/keymaster">Source</a>
+        <a href="https://github.com/squidjam/keymaster">Source</a>
         <span class="version">NO BUILD · NO DEPENDENCIES</span>
       </nav>
     </div>
@@ -519,7 +525,10 @@
         <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> The keyboard is an interface, too</p>
         <h1 id="page-title">Shortcuts you can see.<br>Actions you can feel.</h1>
       </div>
-      <p class="intro-note">Keymaster binds keys to real actions, keeps shortcuts out of text fields, and gives every chord a clear visual form.</p>
+      <div>
+        <p class="intro-note">Keymaster binds keys to real actions, keeps shortcuts out of text fields, and gives every chord a clear visual form.</p>
+        <p class="fork-credit">A modernized fork of the original <a href="https://github.com/madrobby/keymaster">Keymaster by Thomas Fuchs</a>.</p>
+      </div>
     </section>
 
     <section class="wrap demo-section" id="demo" aria-labelledby="demo-title">
@@ -620,7 +629,7 @@
   <footer>
     <div class="wrap footer-inner">
       <p>Keymaster · MIT licensed · No runtime dependencies</p>
-      <a href="https://github.com/madrobby/keymaster">View the source on GitHub</a>
+      <a href="https://github.com/squidjam/keymaster">View the source on GitHub</a>
     </div>
   </footer>
 </body>

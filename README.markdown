@@ -4,6 +4,10 @@ Keymaster is a dependency-free library for defining and dispatching keyboard
 shortcuts in web applications. It preserves the `key(...)` API and includes a
 native custom element for displaying shortcuts.
 
+This repository is a modernized fork of the original Keymaster, created by
+Thomas Fuchs. See the [original project](https://github.com/madrobby/keymaster)
+and this [maintained fork](https://github.com/squidjam/keymaster).
+
 ## Usage
 
 For a browser script, include `keymaster.js`:
