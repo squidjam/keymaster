@@ -7,6 +7,23 @@
     "type": "git",
     "url": "https://github.com/madrobby/keymaster"
   },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./keymaster.js",
+      "default": "./keymaster.js"
+    },
+    "./shortcut-element": {
+      "types": "./keymaster-shortcut.d.ts",
+      "import": "./keymaster-shortcut.mjs",
+      "default": "./keymaster-shortcut.mjs"
+    }
+  },
+  "browser": "./keymaster.js",
   "main": "./keymaster.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "test": "node --test"
+  },
   "license": "MIT"
 }

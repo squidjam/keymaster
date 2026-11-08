@@ -1,28 +1,78 @@
 # keymaster.js
 
-Keymaster is a simple micro-library for defining and
-dispatching keyboard shortcuts in web applications.
-
-It has no dependencies.
-
-*It’s a work in progress (e.g. beta), so spare me your nerdrage and instead
-contribute! Patches are welcome, but they are not guaranteed to make
-it in.*
+Keymaster is a dependency-free library for defining and dispatching keyboard
+shortcuts in web applications. It preserves the `key(...)` API and includes a
+native custom element for displaying shortcuts.
 
 ## Usage
 
-Include `keymaster.js` in your web app*, by loading it as usual:
+For a browser script, include `keymaster.js`:
 
 ```html
 <script src="keymaster.js"></script>
 ```
 
-Keymaster has no dependencies and can be used completely standalone.
-It should not interfere with any JavaScript libraries or frameworks.
+The package can also be loaded with CommonJS (`require('keymaster')`). It has no
+runtime dependencies. Run `npm test` to execute the Node test suite.
 
-_*Preferably use a minified version that fits your workflow. You can
-run `make` to have UglifyJS (if you have it installed) create a
-`keymaster.min.js` file for you._
+## TypeScript
+
+Type declarations are included; no separate `@types` package is needed. With
+`esModuleInterop` enabled, import and register shortcuts like this:
+
+```typescript
+import key from 'keymaster';
+
+key('ctrl+k', (event, shortcut) => {
+  console.log(shortcut.shortcut, shortcut.scope);
+});
+```
+
+Import the custom element module to register its tag and add its type to
+`document.createElement`:
+
+```typescript
+import 'keymaster/shortcut-element';
+
+const shortcut = document.createElement('keymaster-shortcut');
+shortcut.keys = 'ctrl+k';
+shortcut.platform = 'auto';
+```
+
+## Display shortcuts
+
+Import the custom element once through a package-aware bundler or import map.
+It registers `<keymaster-shortcut>` automatically:
+
+```html
+<script type="module">
+  import 'keymaster/shortcut-element';
+</script>
+
+<keymaster-shortcut keys="ctrl+k"></keymaster-shortcut>
+<keymaster-shortcut keys="command+k, ctrl+k"></keymaster-shortcut>
+```
+
+The `keys` attribute accepts the same modifier names and `+` chord syntax as
+the keyboard library. Comma-separated shortcuts render as alternatives. The
+`platform` attribute accepts `auto` (the default), `mac`, or another value to
+choose platform-specific modifier labels.
+
+The element uses an open shadow root. Style the key caps and separators with
+CSS custom properties or parts:
+
+```css
+keymaster-shortcut {
+  --keymaster-key-background: #fff;
+  --keymaster-key-color: #20282d;
+  --keymaster-key-border: #8b969d;
+  --keymaster-key-radius: 3px;
+}
+
+keymaster-shortcut::part(key) {
+  padding: 0.2em 0.5em;
+}
+```
 
 ## Defining shortcuts
 
@@ -179,38 +229,16 @@ key.unbind('o, enter', 'files');
 
 ## Notes
 
-Keymaster should work with any browser that fires `keyup` and `keydown` events,
-and is tested with IE (6+), Safari, Firefox and Chrome.
+The browser entry uses `KeyboardEvent.code` when available and falls back to
+legacy key codes. Shortcuts are ignored in input, select, textarea, and
+content-editable elements by default. Override `key.filter` to change this.
 
-See [http://madrobby.github.com/keymaster/](http://madrobby.github.com/keymaster/) for a live demo.
-
-
-## CoffeeScript
-
-If you're using CoffeeScript, configuring key shortcuts couldn't be simpler:
-
-```coffeescript
-key 'a', -> alert('you pressed a!')
-
-key '⌘+r, ctrl+r', ->
-  alert 'stopped reload!'
-  off
-
-key 'o, enter', 'issues', ->
-  whatevs()
-
-alert 'shift is pressed, OMGZ!' if key.shift
-```
+The `index.html` file is the publishable interactive demo. Serve the repository
+root over HTTP to try it locally.
 
 
 ## Contributing
 
-To contribute, please fork Keymaster, add your patch and tests for it (in the `test/` folder) and
-submit a pull request.
+Run `npm test` before submitting a change. The browser demo is in `index.html`.
 
-## TODOs
-
-* Finish test suite
-
-Keymaster is (c) 2011-2013 Thomas Fuchs and may be freely distributed under the MIT license.
-See the `MIT-LICENSE` file.
+Keymaster may be freely distributed under the MIT license. See `MIT-LICENSE`.

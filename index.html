@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2f6f2">
+  <meta name="description" content="An interactive demo of Keymaster, a lightweight keyboard shortcut library and shortcut display element.">
+  <title>Keymaster | Keyboard Shortcuts, Made Visible</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f2f6f2;
+      --surface: #ffffff;
+      --ink: #17241f;
+      --muted: #64736c;
+      --line: #d3ddd6;
+      --green: #164b3c;
+      --green-dark: #102f28;
+      --lime: #d9ff63;
+      --coral: #e85f48;
+      --blue: #b7d9ea;
+      --content: 1160px;
+      --sans: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+    .wrap { width: min(var(--content), calc(100% - 48px)); margin-inline: auto; }
+
+    .site-header {
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+    }
+    .header-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--ink);
+      border-radius: 5px;
+      background: var(--lime);
+      font: 700 18px/1 var(--mono);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+    .brand-name { font-size: 14px; font-weight: 750; letter-spacing: 0.04em; }
+    .brand-subtitle { display: block; margin-top: 1px; color: var(--muted); font: 10px/1.3 var(--mono); }
+    .header-nav { display: flex; align-items: center; gap: 28px; }
+    .header-nav a {
+      font-size: 13px;
+      font-weight: 650;
+      text-decoration: none;
+    }
+    .header-nav a:hover { color: var(--coral); }
+    .version {
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      color: var(--muted);
+      font: 10px/1.3 var(--mono);
+    }
+
+    .intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(250px, 360px);
+      align-items: end;
+      gap: 36px;
+      padding-block: 58px 38px;
+    }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 14px;
+      color: var(--green);
+      font: 11px/1.4 var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      flex: 0 0 8px;
+      border-radius: 50%;
+      background: var(--coral);
+      box-shadow: 0 0 0 3px rgba(232, 95, 72, 0.14);
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      max-width: 720px;
+      margin-bottom: 0;
+      font: 500 54px/1.04 var(--serif);
+      letter-spacing: 0;
+    }
+    .intro-note {
+      margin: 0 0 4px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .demo-section { padding-bottom: 58px; }
+    .section-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 14px;
+    }
+    .section-heading h2 {
+      margin: 0;
+      font: 500 27px/1.2 var(--serif);
+      letter-spacing: 0;
+    }
+    .section-kicker { margin: 0; color: var(--muted); font: 11px/1.4 var(--mono); }
+    .workbench {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.85fr);
+      min-height: 382px;
+      overflow: hidden;
+      border: 1px solid var(--green-dark);
+      border-radius: 6px;
+      background: var(--surface);
+      box-shadow: 5px 5px 0 var(--green-dark);
+    }
+    .demo-main { padding: 25px 27px 24px; }
+    .demo-side {
+      padding: 25px 26px;
+      border-left: 1px solid var(--line);
+      background-color: #e8f0eb;
+      background-image: linear-gradient(rgba(22, 75, 60, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(22, 75, 60, 0.045) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .panel-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 21px;
+    }
+    .panel-label { margin: 0; color: var(--muted); font: 10px/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+    .scope-control {
+      display: inline-flex;
+      padding: 3px;
+      border: 1px solid #b7c9bd;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+    .scope-control button {
+      min-height: 30px;
+      padding: 4px 10px;
+      border: 0;
+      border-radius: 3px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .scope-control button[aria-pressed="true"] { background: var(--green); color: white; }
+    button:focus-visible, a:focus-visible, input:focus-visible {
+      outline: 3px solid var(--coral);
+      outline-offset: 3px;
+    }
+    .queue {
+      display: grid;
+      border-top: 1px solid var(--line);
+    }
+    .queue-row {
+      display: grid;
+      grid-template-columns: 35px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 13px;
+      min-height: 63px;
+      padding: 10px 8px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+    }
+    .queue-row:hover { background: #f5f8f5; }
+    .queue-row[aria-current="true"] { background: #f0f7df; }
+    .queue-index {
+      color: #78877f;
+      font: 11px/1 var(--mono);
+    }
+    .queue-copy { min-width: 0; }
+    .queue-title { display: block; overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .queue-description { display: block; overflow: hidden; margin-top: 2px; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    keymaster-shortcut { --keymaster-key-background: #fff; --keymaster-key-color: var(--ink); --keymaster-key-border: #b8c5bd; --keymaster-key-shadow: 0 1px 0 #b8c5bd; }
+    .queue-row keymaster-shortcut { font-size: 13px; }
+    .demo-status {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 38px;
+      margin: 15px 0 0;
+      color: var(--green);
+      font-size: 12px;
+    }
+    .status-mark { color: var(--coral); font: 700 13px/1 var(--mono); }
+    .search-label { display: block; margin: 0 0 9px; font: 11px/1.4 var(--mono); }
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 43px;
+      padding: 6px 9px;
+      border: 1px solid #9db5a7;
+      border-radius: 4px;
+      background: white;
+    }
+    .search-box input {
+      width: 100%;
+      min-width: 0;
+      padding: 3px 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: 13px;
+    }
+    .search-box input::placeholder { color: #87958d; }
+    .search-box input:focus-visible { outline: none; }
+    .search-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 6px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: #f6f8f6;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+      font: 10px/1.2 var(--mono);
+    }
+    .search-action:hover { border-color: var(--green); color: var(--green); }
+    .side-divider { height: 1px; margin: 23px 0 19px; background: #c8d6cc; }
+    .shortcut-list { display: grid; gap: 13px; margin: 0; padding: 0; list-style: none; }
+    .shortcut-line { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+    .shortcut-line span { color: #47574e; font-size: 12px; }
+    .shortcut-line keymaster-shortcut { font-size: 13px; }
+    .scope-callout {
+      margin: 20px 0 0;
+      padding: 11px 12px;
+      border-left: 3px solid var(--coral);
+      background: rgba(255, 255, 255, 0.7);
+      color: #42534a;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .details-section {
+      padding-block: 40px 48px;
+      border-top: 1px solid var(--line);
+      background: #e6eeea;
+    }
+    .details-grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 48px; align-items: start; }
+    .details-grid h2 { margin: 0 0 12px; font: 500 29px/1.15 var(--serif); }
+    .details-grid p { max-width: 390px; margin-bottom: 18px; color: var(--muted); font-size: 13px; }
+    .help-toggle {
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--green);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--green);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .help-toggle:hover { background: var(--green); color: white; }
+    .snippet {
+      margin: 0;
+      padding: 18px 20px;
+      overflow-x: auto;
+      border: 1px solid #bccbc1;
+      border-radius: 5px;
+      background: #fbfcfb;
+      color: #20372d;
+      font: 12px/1.8 var(--mono);
+      tab-size: 2;
+    }
+    .snippet .comment { color: #718078; }
+    .snippet .call { color: #17664d; }
+    .snippet .string { color: #ac4b32; }
+    .element-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 18px;
+      padding: 14px 16px;
+      border: 1px solid #bccbc1;
+      border-radius: 5px;
+      background: #fbfcfb;
+    }
+    .element-row p { margin: 0; font-size: 12px; }
+    .element-row code { color: var(--green); font: 11px var(--mono); }
+    .element-row keymaster-shortcut { font-size: 17px; }
+
+    footer { padding-block: 19px 25px; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    footer p, footer a { margin: 0; color: var(--muted); font-size: 11px; }
+    footer a { text-decoration-thickness: 1px; text-underline-offset: 3px; }
+
+    .help-popover {
+      position: fixed;
+      z-index: 5;
+      right: max(24px, calc((100vw - var(--content)) / 2));
+      bottom: 24px;
+      width: min(330px, calc(100vw - 32px));
+      padding: 18px;
+      border: 1px solid var(--green-dark);
+      border-radius: 5px;
+      background: var(--surface);
+      box-shadow: 5px 5px 0 var(--green-dark);
+    }
+    .help-popover[hidden] { display: none; }
+    .help-popover h2 { margin: 0 0 12px; font: 500 20px/1.2 var(--serif); }
+    .help-popover dl { display: grid; grid-template-columns: auto 1fr; gap: 9px 14px; margin: 0; }
+    .help-popover dt { font: 12px/1.5 var(--mono); }
+    .help-popover dd { margin: 0; color: var(--muted); font-size: 12px; }
+
+    @media (max-width: 760px) {
+      .wrap { width: min(var(--content), calc(100% - 32px)); }
+      .header-inner { min-height: 64px; }
+      .header-nav { gap: 15px; }
+      .header-nav a { font-size: 12px; }
+      .version { display: none; }
+      .intro { grid-template-columns: 1fr; gap: 14px; padding-block: 40px 30px; }
+      h1 { max-width: 580px; font-size: 43px; }
+      .intro-note { max-width: 540px; }
+      .workbench { grid-template-columns: 1fr; }
+      .demo-side { border-top: 1px solid var(--line); border-left: 0; }
+      .details-grid { grid-template-columns: 1fr; gap: 25px; }
+    }
+    @media (max-width: 460px) {
+      .brand-subtitle { display: none; }
+      .header-nav { gap: 12px; }
+      .header-nav a { font-size: 11px; }
+      .intro { padding-top: 31px; }
+      h1 { font-size: 37px; }
+      .section-heading { align-items: start; flex-direction: column; gap: 5px; }
+      .workbench { box-shadow: 3px 3px 0 var(--green-dark); }
+      .demo-main, .demo-side { padding: 19px 15px; }
+      .panel-topline { align-items: start; flex-direction: column; gap: 10px; }
+      .queue-row { grid-template-columns: 25px minmax(0, 1fr) auto; gap: 8px; padding-inline: 3px; }
+      .queue-description { font-size: 10px; }
+      .queue-row keymaster-shortcut { font-size: 11px; }
+      .shortcut-line { gap: 8px; }
+      .shortcut-line span { font-size: 11px; }
+      .element-row { align-items: start; flex-direction: column; }
+      .footer-inner { align-items: start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+  <script src="./keymaster.js"></script>
+  <script type="module">
+    import './keymaster-shortcut.mjs';
+
+    const key = window.key;
+    const queueRows = [...document.querySelectorAll('[data-queue-item]')];
+    const searchInput = document.querySelector('#queue-search');
+    const status = document.querySelector('#demo-status');
+    const scopeButtons = [...document.querySelectorAll('[data-scope]')];
+    const helpPopover = document.querySelector('#help-popover');
+    const helpToggle = document.querySelector('[data-help-toggle]');
+    let selectedIndex = 0;
+
+    function visibleRows() {
+      return queueRows.filter(row => !row.hidden);
+    }
+
+    function announce(message) {
+      status.querySelector('.status-copy').textContent = message;
+    }
+
+    function selectItem(index, shouldAnnounce = true) {
+      const availableRows = visibleRows();
+      if (!availableRows.length) {
+        announce('No items match that search.');
+        return;
+      }
+      selectedIndex = (index + availableRows.length) % availableRows.length;
+      queueRows.forEach(row => row.setAttribute('aria-current', 'false'));
+      const selectedRow = availableRows[selectedIndex];
+      selectedRow.setAttribute('aria-current', 'true');
+      if (shouldAnnounce) {
+        announce(`Selected ${selectedRow.querySelector('.queue-title').textContent}.`);
+      }
+    }
+
+    function setScope(scope) {
+      key.setScope(scope);
+      scopeButtons.forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.scope === scope));
+      });
+      announce(`Active scope: ${scope === 'reader' ? 'Reader' : 'Review'}.`);
+    }
+
+    function toggleHelp() {
+      const opening = helpPopover.hidden;
+      if (opening) {
+        helpPopover.hidden = false;
+        helpToggle.setAttribute('aria-expanded', 'true');
+        helpPopover.querySelector('button').focus();
+      } else {
+        closeHelp();
+      }
+    }
+
+    function closeHelp() {
+      helpPopover.hidden = true;
+      helpToggle.setAttribute('aria-expanded', 'false');
+      helpToggle.focus();
+    }
+
+    queueRows.forEach((row, index) => {
+      row.addEventListener('click', () => {
+        const indexInView = visibleRows().indexOf(row);
+        if (indexInView >= 0) selectItem(indexInView);
+      });
+    });
+
+    scopeButtons.forEach(button => {
+      button.addEventListener('click', () => setScope(button.dataset.scope));
+    });
+
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.trim().toLowerCase();
+      queueRows.forEach(row => {
+        row.hidden = !row.textContent.toLowerCase().includes(query);
+      });
+      selectedIndex = 0;
+      selectItem(0, false);
+    });
+
+    document.querySelector('[data-open-search]').addEventListener('click', () => {
+      searchInput.focus();
+      searchInput.select();
+    });
+
+    helpToggle.addEventListener('click', toggleHelp);
+    helpPopover.querySelector('button').addEventListener('click', closeHelp);
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !helpPopover.hidden) {
+        closeHelp();
+      }
+    });
+
+    key('j', () => selectItem(selectedIndex + 1));
+    key('k', () => selectItem(selectedIndex - 1));
+    key('/', () => {
+      searchInput.focus();
+      return false;
+    });
+    key('ctrl+k, command+k', () => {
+      searchInput.focus();
+      searchInput.select();
+      return false;
+    });
+    key('shift+/', toggleHelp);
+    key('e', 'reader', () => announce('Reader action: opened the selected item.'));
+    key('e', 'review', () => announce('Review action: flagged the selected item.'));
+
+    helpToggle.setAttribute('aria-expanded', 'false');
+    selectItem(0, false);
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#top" aria-label="Keymaster demo home">
+        <span class="brand-mark" aria-hidden="true">⌘</span>
+        <span><span class="brand-name">KEYMASTER</span><span class="brand-subtitle">SHORTCUT ENGINE / LIVE DEMO</span></span>
+      </a>
+      <nav class="header-nav" aria-label="Main navigation">
+        <a href="#demo">Demo</a>
+        <a href="#how-it-works">Element</a>
+        <a href="https://github.com/madrobby/keymaster">Source</a>
+        <span class="version">NO BUILD · NO DEPENDENCIES</span>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="wrap intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> The keyboard is an interface, too</p>
+        <h1 id="page-title">Shortcuts you can see.<br>Actions you can feel.</h1>
+      </div>
+      <p class="intro-note">Keymaster binds keys to real actions, keeps shortcuts out of text fields, and gives every chord a clear visual form.</p>
+    </section>
+
+    <section class="wrap demo-section" id="demo" aria-labelledby="demo-title">
+      <div class="section-heading">
+        <h2 id="demo-title">Try it live</h2>
+        <p class="section-kicker">Click a row or use J / K to move</p>
+      </div>
+
+      <div class="workbench">
+        <div class="demo-main">
+          <div class="panel-topline">
+            <p class="panel-label">Your reading queue</p>
+            <div class="scope-control" role="group" aria-label="Shortcut scope">
+              <button type="button" data-scope="reader" aria-pressed="true">Reader</button>
+              <button type="button" data-scope="review" aria-pressed="false">Review</button>
+            </div>
+          </div>
+
+          <div class="queue" role="list" aria-label="Reading queue">
+            <button class="queue-row" type="button" role="listitem" data-queue-item aria-current="true">
+              <span class="queue-index">01</span>
+              <span class="queue-copy"><span class="queue-title">Designing for the second click</span><span class="queue-description">Interface notes · 6 min read</span></span>
+              <keymaster-shortcut keys="j"></keymaster-shortcut>
+            </button>
+            <button class="queue-row" type="button" role="listitem" data-queue-item aria-current="false">
+              <span class="queue-index">02</span>
+              <span class="queue-copy"><span class="queue-title">A field guide to useful defaults</span><span class="queue-description">Product craft · 4 min read</span></span>
+              <keymaster-shortcut keys="k"></keymaster-shortcut>
+            </button>
+            <button class="queue-row" type="button" role="listitem" data-queue-item aria-current="false">
+              <span class="queue-index">03</span>
+              <span class="queue-copy"><span class="queue-title">Small tools, sharp edges</span><span class="queue-description">Engineering · 8 min read</span></span>
+              <keymaster-shortcut keys="e"></keymaster-shortcut>
+            </button>
+          </div>
+
+          <p class="demo-status" id="demo-status" aria-live="polite" aria-atomic="true">
+            <span class="status-mark" aria-hidden="true">●</span><span class="status-copy">Ready. Press J or K to change selection.</span>
+          </p>
+        </div>
+
+        <aside class="demo-side" aria-label="Shortcut controls">
+          <label class="search-label" for="queue-search">Find an item</label>
+          <div class="search-box">
+            <input id="queue-search" type="search" placeholder="Type to filter the queue" autocomplete="off">
+            <button class="search-action" type="button" data-open-search aria-label="Focus search"><keymaster-shortcut keys="ctrl+k, command+k"></keymaster-shortcut></button>
+          </div>
+
+          <div class="side-divider"></div>
+          <p class="panel-label">Active shortcuts</p>
+          <ul class="shortcut-list">
+            <li class="shortcut-line"><span>Next / previous</span><keymaster-shortcut keys="j, k"></keymaster-shortcut></li>
+            <li class="shortcut-line"><span>Focus search</span><keymaster-shortcut keys="/ "></keymaster-shortcut></li>
+            <li class="shortcut-line"><span>Scope action</span><keymaster-shortcut keys="e"></keymaster-shortcut></li>
+            <li class="shortcut-line"><span>Show this guide</span><keymaster-shortcut keys="shift+/"></keymaster-shortcut></li>
+          </ul>
+          <p class="scope-callout">The <strong>E</strong> action changes with the selected scope. Try it in Reader, then switch to Review.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="details-section" id="how-it-works" aria-labelledby="details-title">
+      <div class="wrap details-grid">
+        <div>
+          <p class="eyebrow">A small API, a visible result</p>
+          <h2 id="details-title">Keep the shortcut close to the action.</h2>
+          <p>Display the same key combinations your app listens for. The custom element renders platform-aware keycaps and exposes styling hooks.</p>
+          <button class="help-toggle" type="button" data-help-toggle aria-expanded="false" aria-controls="help-popover">Keyboard guide <span aria-hidden="true">↗</span></button>
+        </div>
+        <div>
+          <pre class="snippet"><code><span class="comment">// Bind an action</span>
+<span class="call">key</span>(<span class="string">'ctrl+k, command+k'</span>, openSearch);
+
+<span class="comment">// Show the matching shortcut</span>
+&lt;keymaster-shortcut
+  keys="command+k, ctrl+k"&gt;
+&lt;/keymaster-shortcut&gt;</code></pre>
+          <div class="element-row">
+            <p><code>&lt;keymaster-shortcut&gt;</code><br>One import. Themeable keycaps.</p>
+            <keymaster-shortcut keys="command+k, ctrl+k"></keymaster-shortcut>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="help-popover" id="help-popover" aria-labelledby="help-title" hidden>
+    <h2 id="help-title">Keyboard guide</h2>
+    <dl>
+      <dt><keymaster-shortcut keys="j, k"></keymaster-shortcut></dt><dd>Move through the queue</dd>
+      <dt><keymaster-shortcut keys="/ "></keymaster-shortcut></dt><dd>Focus the filter</dd>
+      <dt><keymaster-shortcut keys="e"></keymaster-shortcut></dt><dd>Run the active scope action</dd>
+      <dt><keymaster-shortcut keys="shift+/"></keymaster-shortcut></dt><dd>Toggle this guide</dd>
+    </dl>
+    <button class="help-toggle" type="button" style="margin-top: 16px">Close</button>
+  </aside>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <p>Keymaster · MIT licensed · No runtime dependencies</p>
+      <a href="https://github.com/madrobby/keymaster">View the source on GitHub</a>
+    </div>
+  </footer>
+</body>
+</html>
