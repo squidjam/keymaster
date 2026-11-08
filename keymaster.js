@@ -61,11 +61,8 @@
     return _MAP[(event.key || '').toLowerCase()] || event.keyCode || event.which;
   }
 
-  // IE doesn't support Array#indexOf, so have a simple replacement
   function index(array, item){
-    var i = array.length;
-    while(i--) if(array[i]===item) return i;
-    return -1;
+    return array.indexOf(item);
   }
 
   // for comparing mods before unassignment
@@ -130,10 +127,8 @@
         // call the handler and stop the event if neccessary
         if((handler.mods.length == 0 && !_mods[16] && !_mods[18] && !_mods[17] && !_mods[91]) || modifiersMatch){
           if(handler.method(event, handler)===false){
-            if(event.preventDefault) event.preventDefault();
-              else event.returnValue = false;
-            if(event.stopPropagation) event.stopPropagation();
-            if(event.cancelBubble) event.cancelBubble = true;
+            event.preventDefault();
+            event.stopPropagation();
           }
         }
       }
@@ -241,7 +236,7 @@
   }
 
   function filter(event){
-    var target = event.target || event.srcElement;
+    var target = event.target;
     var tagName = target && target.tagName;
     // ignore keypressed in any elements that support keyboard data input
     return !(tagName == 'INPUT' || tagName == 'SELECT' || tagName == 'TEXTAREA' ||
@@ -289,12 +284,9 @@
     return mods;
   }
 
-  // cross-browser events
+  // register standard DOM events
   function addEvent(object, event, method) {
-    if (object.addEventListener)
-      object.addEventListener(event, method, false);
-    else if(object.attachEvent)
-      object.attachEvent('on'+event, function(){ method(window.event) });
+    object.addEventListener(event, method);
   };
 
   // set the handlers globally on document

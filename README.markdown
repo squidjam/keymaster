@@ -171,7 +171,8 @@ key.deleteScope('issues');
 
 ## Filter key presses
 
-By default, when an `INPUT`, `SELECT` or `TEXTAREA` element is focused, Keymaster doesn't process any shortcuts.
+By default, Keymaster ignores shortcuts when an `INPUT`, `SELECT`, `TEXTAREA`,
+or content-editable element is focused.
 
 You can change this by overwriting `key.filter` with a new function. This function is called before
 Keymaster processes shortcuts, with the keydown event as argument.
@@ -181,9 +182,11 @@ If your function returns false, then the no shortcuts will be processed.
 Here's the default implementation for reference:
 
 ```javascript
-function filter(event){
-  var tagName = (event.target || event.srcElement).tagName;
-  return !(tagName == 'INPUT' || tagName == 'SELECT' || tagName == 'TEXTAREA');
+function filter(event) {
+  const target = event.target;
+  const tagName = target && target.tagName;
+  return !(tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA' ||
+    (target && target.isContentEditable));
 }
 ```
 
@@ -192,11 +195,14 @@ If you only want _some_ shortcuts to work while in an input element, you can cha
 Don't forget to return `true` so the any shortcuts get processed.
 
 ```javascript
-key.filter = function(event){
-  var tagName = (event.target || event.srcElement).tagName;
-  key.setScope(/^(INPUT|TEXTAREA|SELECT)$/.test(tagName) ? 'input' : 'other');
+key.filter = function(event) {
+  const target = event.target;
+  const tagName = target && target.tagName;
+  const isEditable = tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+    tagName === 'SELECT' || (target && target.isContentEditable);
+  key.setScope(isEditable ? 'input' : 'other');
   return true;
-}
+};
 ```
 
 However a more robust way to handle this is to use proper
